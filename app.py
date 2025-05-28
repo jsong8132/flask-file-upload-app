@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template_string
 from azure.storage.blob import BlobServiceClient
+from io import BytesIO
 import os
 
 app = Flask(__name__)
@@ -34,9 +35,21 @@ def upload_file():
         </form>
     ''')
 
+@app.route("/files")
+def list_files():
+    blobs = container_client.list_blobs()
+    file_list = [blob.name for blob in blobs]
+    return "<br>".join([f'<a href="/files/{f}">{f}</a>' for f in file_list])
+
+
 @app.route("/files/<filename>")
 def uploaded_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    try:
+        blob_client = container_client.get_blob_client(filename)
+        blob_data = blob_client.download_blob().readall()
+        return send_file(BytesIO(blob_data), download_name=filename)
+    except Exception as e:
+        return f"Error fetching file: {str(e)}", 404
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # Azure will pass PORT in the environment
