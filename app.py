@@ -6,7 +6,7 @@ import os
 app = Flask(__name__)
 # Get Azure connection string from environment variables or hardcode for testing (use Key Vault for production)
 AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-BLOB_CONTAINER = "uploads"  # your container name
+BLOB_CONTAINER = "webappstorageaccount813"  # your container name
 
 blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_STRING)
 container_client = blob_service_client.get_container_client(BLOB_CONTAINER)
